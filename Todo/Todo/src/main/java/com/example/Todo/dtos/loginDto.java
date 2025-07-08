@@ -8,4 +8,3 @@ public class LoginDto {
     private String password;
 }
 
-// This file must be renamed to LoginDto.java to match the public class name.

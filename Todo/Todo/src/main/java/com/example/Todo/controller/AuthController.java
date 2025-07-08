@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -24,20 +25,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterDto registerDto) {
-        User user = authService.registerUser(registerDto.getEmail(), registerDto.getPassword());
+        User user = authService.registerUser(registerDto.getUsername(),registerDto.getEmail(), registerDto.getPassword());
         return ResponseEntity.ok(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
-            );
-            String token = jwtUtil.generateToken((org.springframework.security.core.userdetails.User) authentication.getPrincipal());
-            return ResponseEntity.ok(new AuthResponseDto(token));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).build();
-        }
+public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
+    try {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+        );
+        String token = jwtUtil.generateToken((org.springframework.security.core.userdetails.User) authentication.getPrincipal());
+        // Fetch user details
+        User user = authService.getUserByEmail(loginDto.getEmail());
+        return ResponseEntity.ok(new AuthResponseDto(token, user.getUsername(), user.getEmail()));
+    } catch (AuthenticationException e) {
+        return ResponseEntity.status(401).build();
     }
+}
 }

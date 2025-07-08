@@ -26,14 +26,20 @@ public class AuthService implements UserDetailsService {
                 .build();
     }
 
-    public User registerUser(String email, String password) {
+    public User registerUser(String username,String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
         User user = User.builder()
+                .username(username)
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .build();
         return userRepository.save(user);
     }
+
+    public User getUserByEmail(String email) {
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+}
 }

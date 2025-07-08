@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthResponseDto {
     private String token;
+    private String username;
+    private String email;
 }
-
-// This file must be renamed to AuthResponseDto.java to match the public class name.

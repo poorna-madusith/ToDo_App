@@ -1,16 +1,103 @@
-import {useState, useEffect} from "react";
-import { getTasks } from "../services/taskServices";
+import {useState, useEffect, use} from "react";
+import { getTasks, updateTask, deletetask } from "../services/taskServices";
+import { useNavigate } from "react-router-dom";
+import Addmodel from "./Addmodel";
 
 
 
 function Dashboard(){
     const[tasks, settasks] = useState([]);
+    const navigate = useNavigate();
+    const[editTaskId, setEditTaskId] = useState(null);
+    const[editTask, setEditTask] = useState({
+        title: "",
+        description: "",
+        dueDate: "",
+        completed: false
+    })
+    const [showAddModal, setShowAddModal] = useState(false);
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/login");
+    }
+
+    const startEditing = (task) => {
+        setEditTaskId(task.id);
+        setEditTask({
+            title: task.title,
+            description: task.description,
+            dueDate: task.dueDate || task.duDate || "",
+            completed: !!task.completed
+        });
+    }
+
+    const handleChange = (e)=>{
+        const {name, value, type, checked} = e.target;
+        setEditTask((prev)=>({
+            ...prev,
+            [name] : type === "checkbox" ? checked : value
+        }));
+    }
 
     const loadTasks = async () => {
         const response = await getTasks();
         settasks(response.data);
     }
+
+    const handleCancelEdit = () => {
+        setEditTaskId(null);
+        setEditTask({
+            title: "",
+            description: "",
+            dueDate: "",
+            completed: false
+        });
+    }
+
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if(editTaskId){
+            try {
+                await updateTask(editTaskId, {
+                    ...editTask,
+                    completed: !!editTask.completed
+                });
+                setEditTaskId(null);
+                setEditTask({ title: "", description: "", dueDate: "", completed: false });
+                loadTasks();
+            } catch (err) {
+                alert("Failed to update task");
+            }
+        }else{
+            alert("Please select a task to edit");
+        }
+    }
+
+    const handleDelete = async (id)=>{
+        if(window.confirm("Are you sure you want to delete this task? ")){
+            try{
+                await deletetask(id);
+                loadTasks();
+            } catch (err) {
+                alert("Failed to delete task");
+            }
+        }
+    }
+
+    const handleAddTaskClick = () => setShowAddModal(true);
+    const handleModalClose = () => setShowAddModal(false);
+    const handleTaskAdded = () => {
+        loadTasks();
+        setShowAddModal(false);
+    };
+
+    const sortedTasks = [...tasks].sort((a, b) => {
+        const today = new Date();
+        const aDate = new Date(a.dueDate || a.duDate);
+        const bDate = new Date(b.dueDate || b.duDate);
+        return Math.abs(aDate - today) - Math.abs(bDate - today);
+    });
 
     useEffect(()=>{
         loadTasks();
@@ -18,8 +105,12 @@ function Dashboard(){
 
     return(
         <div>
-            <h2>Tasks</h2>
-            <table>
+            <button onClick={handleLogout} style={{float: 'right', margin: '10px'}}>Logout</button>
+            <button onClick={handleAddTaskClick} style={{margin: '10px'}}>Add Task</button>
+            {showAddModal && (
+                <Addmodel onClose={handleModalClose} onTaskAdded={handleTaskAdded} />
+            )}
+           <table>
                 <thead>
                     <tr>
                         <td>Title</td>
@@ -31,16 +122,61 @@ function Dashboard(){
                     </tr>
                 </thead>
                 <tbody>
-                    {tasks.map(task => (
+                    {sortedTasks.map(task => 
+                    
+                        editTaskId == task.id ?(
+                            <tr key={task.id}>
+                                <td key={task.id}></td>
+                                <td>
+                                    <input 
+                                        type="text" 
+                                        name="title" 
+                                        value={editTask.title} 
+                                        onChange={handleChange} 
+                                        placeholder="Title" 
+                                    />
+                                </td>
+                                <td>
+                                    <input 
+                                        type="text" 
+                                        name="description" 
+                                        value={editTask.description} 
+                                        onChange={handleChange} 
+                                        placeholder="Description" 
+                                    />
+                                </td>
+                                <td>
+                                    <input 
+                                        type="date" 
+                                        name="dueDate" 
+                                        value={editTask.dueDate} 
+                                        onChange={handleChange} 
+                                    />
+                                </td>
+                                <td>
+                                    <input 
+                                        type="checkbox" 
+                                        name="completed" 
+                                        checked={editTask.completed} 
+                                        onChange={handleChange} 
+                                    />
+                                </td>
+                                <td>
+                                    <button onClick={handleSubmit}>Save</button>
+                                    <button onClick={handleCancelEdit}>Cancel</button>
+                                </td>
+                            </tr>
+                        ):(
                         <tr key={task.id}>
                             <td>{task.title}</td>
                             <td>{task.description}</td>
-                            <td>{task.duDate}</td>
-                            <td>{task.completed == 1 ? "Completed" : "Pending"}</td>
-                            <td><button>Edit</button></td>
-                            <td><button>Delete</button></td>
+                            <td>{task.dueDate || task.duDate}</td>
+                            <td>{task.completed ? "Completed" : "Pending"}</td>
+                            <td><button onClick={() => startEditing(task)}>Edit</button></td>
+                            <td><button onClick={()=>handleDelete(task.id)}>Delete</button></td>
                         </tr>
-                    ))}
+                        )
+                    )}
                 </tbody>
             </table>
         </div>
