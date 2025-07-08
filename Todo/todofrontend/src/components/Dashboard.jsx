@@ -122,61 +122,65 @@ function Dashboard(){
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedTasks.map(task => 
-                    
-                        editTaskId == task.id ?(
-                            <tr key={task.id}>
-                                <td key={task.id}></td>
-                                <td>
-                                    <input 
-                                        type="text" 
-                                        name="title" 
-                                        value={editTask.title} 
-                                        onChange={handleChange} 
-                                        placeholder="Title" 
-                                    />
-                                </td>
-                                <td>
-                                    <input 
-                                        type="text" 
-                                        name="description" 
-                                        value={editTask.description} 
-                                        onChange={handleChange} 
-                                        placeholder="Description" 
-                                    />
-                                </td>
-                                <td>
-                                    <input 
-                                        type="date" 
-                                        name="dueDate" 
-                                        value={editTask.dueDate} 
-                                        onChange={handleChange} 
-                                    />
-                                </td>
-                                <td>
-                                    <input 
-                                        type="checkbox" 
-                                        name="completed" 
-                                        checked={editTask.completed} 
-                                        onChange={handleChange} 
-                                    />
-                                </td>
-                                <td>
-                                    <button onClick={handleSubmit}>Save</button>
-                                    <button onClick={handleCancelEdit}>Cancel</button>
-                                </td>
-                            </tr>
-                        ):(
-                        <tr key={task.id}>
-                            <td>{task.title}</td>
-                            <td>{task.description}</td>
-                            <td>{task.dueDate || task.duDate}</td>
-                            <td>{task.completed ? "Completed" : "Pending"}</td>
-                            <td><button onClick={() => startEditing(task)}>Edit</button></td>
-                            <td><button onClick={()=>handleDelete(task.id)}>Delete</button></td>
-                        </tr>
-                        )
-                    )}
+                    {sortedTasks.map(task => {
+                        const isToday = new Date().toDateString() === new Date(task.dueDate || task.duDate).toDateString();
+                        if (editTaskId === task.id) {
+                            return (
+                                <tr key={task.id}>
+                                    <td key={task.id}></td>
+                                    <td>
+                                        <input 
+                                            type="text" 
+                                            name="title" 
+                                            value={editTask.title} 
+                                            onChange={handleChange} 
+                                            placeholder="Title" 
+                                        />
+                                    </td>
+                                    <td>
+                                        <input 
+                                            type="text" 
+                                            name="description" 
+                                            value={editTask.description} 
+                                            onChange={handleChange} 
+                                            placeholder="Description" 
+                                        />
+                                    </td>
+                                    <td>
+                                        <input 
+                                            type="date" 
+                                            name="dueDate" 
+                                            value={editTask.dueDate} 
+                                            onChange={handleChange} 
+                                        />
+                                    </td>
+                                    <td>
+                                        <input 
+                                            type="checkbox" 
+                                            name="completed" 
+                                            checked={editTask.completed} 
+                                            onChange={handleChange} 
+                                        />
+                                    </td>
+                                    <td>
+                                        <button onClick={handleSubmit}>Save</button>
+                                        <button onClick={handleCancelEdit}>Cancel</button>
+                                    </td>
+                                </tr>
+                            );
+                        } else {
+                            return (
+                                <tr key={task.id} style={isToday ? { backgroundColor: 'gray' } : {}}>
+                                    <td>{task.title}</td>
+                                    <td>{task.description}</td>
+                                    <td>{task.dueDate}</td>
+                                    <td>{task.completed ? "Completed" : "Pending"}</td>
+                                    <td><button onClick={() => startEditing(task)}>Edit</button></td>
+                                    <td><button onClick={()=>handleDelete(task.id)}>Delete</button></td>
+                                </tr>
+                            );
+                        }
+                    })}
                 </tbody>
             </table>
         </div>
