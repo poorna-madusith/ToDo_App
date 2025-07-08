@@ -3,6 +3,8 @@ package com.example.Todo.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.Todo.models.Task;
+import com.example.Todo.models.User;
+import com.example.Todo.repository.UserRepository;
 import com.example.Todo.service.TaskService;
 
 @RestController
@@ -23,38 +27,50 @@ import com.example.Todo.service.TaskService;
 public class TaskController {
     
     private final TaskService taskService;
+    private final UserRepository userRepository;
 
-    public TaskController(TaskService taskService){
+    public TaskController(TaskService taskService, UserRepository userRepository){
         this.taskService = taskService;
+        this.userRepository = userRepository;
+    }
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task){
-        return ResponseEntity.ok(taskService.createTask(task));
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(taskService.createTask(task, user));
     }
 
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks(){
-        return ResponseEntity.ok(taskService.getAllTasks());
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(taskService.getAllTasks(user));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id){
-        return taskService.getTaskById(id)
+        User user = getAuthenticatedUser();
+        return taskService.getTaskById(id, user)
             .map(task -> ResponseEntity.ok(task))
             .orElse(ResponseEntity.notFound().build());
-
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask){
-        return ResponseEntity.ok(taskService.updateTask(id, updatedTask));
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(taskService.updateTask(id, updatedTask, user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Task> deleteTask(@PathVariable Long id){
-        taskService.deleteTask(id);
+        User user = getAuthenticatedUser();
+        taskService.deleteTask(id, user);
         return ResponseEntity.noContent().build();
     }
  
