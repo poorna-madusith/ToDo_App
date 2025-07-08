@@ -26,6 +26,8 @@ function Dashboard(){
                         <td>Task Description</td>
                         <td>Due Date</td>
                         <td>Status</td>
+                        <td>Edit</td>
+                        <td>Delete</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,6 +37,8 @@ function Dashboard(){
                             <td>{task.description}</td>
                             <td>{task.duDate}</td>
                             <td>{task.completed == 1 ? "Completed" : "Pending"}</td>
+                            <td><button>Edit</button></td>
+                            <td><button>Delete</button></td>
                         </tr>
                     ))}
                 </tbody>
