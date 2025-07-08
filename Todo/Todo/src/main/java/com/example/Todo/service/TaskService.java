@@ -35,7 +35,7 @@ public class TaskService {
             .map(task ->{
                 task.setTitle(updatedTask.getTitle());
                 task.setDescription(updatedTask.getDescription());
-                task.setDuDate(updatedTask.getDuDate());
+                task.setDueDate(updatedTask.getDueDate());
                 task.setCompleted(updatedTask.isCompleted());
                 return taskRepository.save(task);
 
