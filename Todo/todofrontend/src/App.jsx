@@ -7,21 +7,23 @@ import Addmodel from './components/Addmodel'
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 
-import './App.css'
-
 function App() {
 
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/add" element={<Addmodel />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </Router>
+    <div className="bg-gray-100 min-h-screen">
+      <Router>
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/add" element={<Addmodel />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </main>
+      </Router>
+    </div>
   )
 }
 

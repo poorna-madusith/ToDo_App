@@ -13,7 +13,7 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="profile-page">
+    <div className="container mx-auto px-4 py-8">
       <UserDetails user={user} />
     </div>
   );
