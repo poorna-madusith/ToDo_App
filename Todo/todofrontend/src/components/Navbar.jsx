@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Navbar = ({ onLogout, onProfile }) => {
+const Navbar = ({ onProfile }) => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -17,13 +17,8 @@ const Navbar = ({ onLogout, onProfile }) => {
   };
 
   const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    } else {
-      // Default logout logic (clear localStorage and redirect to login)
-      localStorage.clear();
-      navigate("/login");
-    }
+    localStorage.clear();
+    navigate("/login");
   };
 
   const todoapp = () => {

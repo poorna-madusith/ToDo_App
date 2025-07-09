@@ -10,7 +10,6 @@ const UserDetails = ({ user }) => {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">User Details</h2>
       <p className="text-gray-600"><strong className="font-medium text-gray-800">Username:</strong> {user.username}</p>
       <p className="text-gray-600"><strong className="font-medium text-gray-800">Email:</strong> {user.email}</p>
-      {/* Add more user fields as needed */}
     </div>
   );
 };

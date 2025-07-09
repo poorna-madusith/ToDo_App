@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
@@ -25,6 +26,8 @@ public class JwtFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+
+    //make sure only authentictaed users can access the protected routes
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -35,8 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
             token = authHeader.substring(7);
             email = jwtUtil.extractUsername(token);
         }
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) { //check email is not null and user is already authenticated or not
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);//get userdetails using userdetailsservice intefrace
             if (jwtUtil.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -44,6 +47,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);    
     }
 }

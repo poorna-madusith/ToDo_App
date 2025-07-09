@@ -30,6 +30,11 @@ public class TaskService {
         return taskRepository.findByIdAndUser(id, user);
     }
 
+    public List<Task> getTodayTasks(User user){
+        return taskRepository.findByUserAndDueDate(user, java.time.LocalDate.now());
+
+    }
+
     public Task updateTask(Long id, Task updatedTask, User user){
         return taskRepository.findByIdAndUser(id, user)
             .map(task ->{

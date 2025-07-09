@@ -34,6 +34,8 @@ public class TaskController {
         this.userRepository = userRepository;
     }
 
+
+    // Method to get the authenticated user from the security context
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -41,18 +43,23 @@ public class TaskController {
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
     }
 
+
+    //create task
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task){
         User user = getAuthenticatedUser();
         return ResponseEntity.ok(taskService.createTask(task, user));
     }
 
+    ///get all task for logged in user
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks(){
         User user = getAuthenticatedUser();
         return ResponseEntity.ok(taskService.getAllTasks(user));
     }
 
+
+    //get task by id for logged in user
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id){
         User user = getAuthenticatedUser();
@@ -61,17 +68,26 @@ public class TaskController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    //update task by id for logged in user
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask){
         User user = getAuthenticatedUser();
         return ResponseEntity.ok(taskService.updateTask(id, updatedTask, user));
     }
 
+    //delete task by id for logged in user
     @DeleteMapping("/{id}")
     public ResponseEntity<Task> deleteTask(@PathVariable Long id){
         User user = getAuthenticatedUser();
         taskService.deleteTask(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    //show only today tasks
+    @GetMapping("/today-tasks")
+    public ResponseEntity<List<Task>> getTodayTasks(){
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(taskService.getTodayTasks(user));
     }
  
 

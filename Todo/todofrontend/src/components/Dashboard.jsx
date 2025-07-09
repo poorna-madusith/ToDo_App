@@ -1,11 +1,9 @@
-import { useState, useEffect, use } from "react";
-import { getTasks, updateTask, deletetask } from "../services/taskServices";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getTasks, updateTask, deletetask, getTodayTasks } from "../services/taskServices";
 import Addmodel from "./Addmodel";
 
 function Dashboard() {
-  const [tasks, settasks] = useState([]);
-  const navigate = useNavigate();
+  const [tasks, setTasks] = useState([]);
   const [editTaskId, setEditTaskId] = useState(null);
   const [editTask, setEditTask] = useState({
     title: "",
@@ -14,18 +12,14 @@ function Dashboard() {
     completed: false,
   });
   const [showAddModal, setShowAddModal] = useState(false);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  const [view, setView] = useState("all"); 
 
   const startEditing = (task) => {
     setEditTaskId(task.id);
     setEditTask({
       title: task.title,
       description: task.description,
-      dueDate: task.dueDate || task.duDate || "",
+      dueDate: task.dueDate,
       completed: !!task.completed,
     });
   };
@@ -40,7 +34,17 @@ function Dashboard() {
 
   const loadTasks = async () => {
     const response = await getTasks();
-    settasks(response.data);
+    setTasks(response.data);
+  };
+
+  const loadTodayTasks = async () => {
+    try {
+      const response = await getTodayTasks();
+      setTasks(response.data);
+    } catch (err) {
+      console.error("Failed to load today's tasks:", err);
+      alert("Failed to load today's tasks");
+    }
   };
 
   const handleCancelEdit = () => {
@@ -68,7 +72,11 @@ function Dashboard() {
           dueDate: "",
           completed: false,
         });
-        loadTasks();
+        if (view === 'all') {
+          loadTasks();
+        } else {
+          loadTodayTasks();
+        }
       } catch (err) {
         alert("Failed to update task");
       }
@@ -81,7 +89,11 @@ function Dashboard() {
     if (window.confirm("Are you sure you want to delete this task? ")) {
       try {
         await deletetask(id);
-        loadTasks();
+        if (view === 'all') {
+          loadTasks();
+        } else {
+          loadTodayTasks();
+        }
       } catch (err) {
         alert("Failed to delete task");
       }
@@ -91,20 +103,21 @@ function Dashboard() {
   const handleAddTaskClick = () => setShowAddModal(true);
   const handleModalClose = () => setShowAddModal(false);
   const handleTaskAdded = () => {
-    loadTasks();
+    if (view === 'all') {
+      loadTasks();
+    } else {
+      loadTodayTasks();
+    }
     setShowAddModal(false);
   };
 
-  const sortedTasks = [...tasks].sort((a, b) => {
-    const today = new Date();
-    const aDate = new Date(a.dueDate || a.duDate);
-    const bDate = new Date(b.dueDate || b.duDate);
-    return Math.abs(aDate - today) - Math.abs(bDate - today);
-  });
-
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (view === 'all') {
+      loadTasks();
+    } else {
+      loadTodayTasks();
+    }
+  }, [view]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -112,8 +125,24 @@ function Dashboard() {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <div>
           <button
+            onClick={() => setView('all')}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium mr-2 ${
+              view === "all" && "bg-blue-700"
+            }`}
+          >
+            All Tasks
+          </button>
+          <button
+            onClick={() => setView('today')}
+            className={`bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium mr-2 ${
+              view === "today" && "bg-red-700"
+            }`}
+          >
+            Today's Tasks
+          </button>
+          <button
             onClick={handleAddTaskClick}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Add Task
           </button>
@@ -144,10 +173,7 @@ function Dashboard() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {sortedTasks.map((task) => {
-              const isToday =
-                new Date().toDateString() ===
-                new Date(task.dueDate || task.duDate).toDateString();
+            {tasks.map((task) => {
               if (editTaskId === task.id) {
                 return (
                   <tr key={task.id}>
@@ -207,10 +233,7 @@ function Dashboard() {
                 );
               } else {
                 return (
-                  <tr
-                    key={task.id}
-                    className={isToday ? "bg-red-100" : "bg-green-100"}
-                  >
+                  <tr key={task.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {task.title}
                     </td>
@@ -251,14 +274,6 @@ function Dashboard() {
             })}
           </tbody>
         </table>
-      </div>
-      <div className="flex items-center space-x-2 mt-3">
-        <div className="w-2 h-2 bg-red-300 rounded-full"></div>
-        <span className="text-sm font-medium">Today Tasks</span>
-      </div>
-      <div className="flex items-center space-x-2 mt-3">
-        <div className="w-2 h-2 bg-green-300 rounded-full"></div>
-        <span className="text-sm font-medium">Other Tasks</span>
       </div>
     </div>
   );
