@@ -47,7 +47,7 @@ This is a full-stack Todo application built with a Spring Boot backend and a Rea
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/poorna-madusith/ToDo_App
     ```
 
 2.  **Backend Setup:**
