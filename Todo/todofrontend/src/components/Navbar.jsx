@@ -6,7 +6,7 @@ const Navbar = ({ onProfile }) => {
 
   const location = useLocation();
 
-  const isloginorregister  = location.pathname === "/login" || location.pathname === "/register";
+  const isloginorregister  = location.pathname === "/" || location.pathname === "/register" || location.pathname === "/reset-password" || location.pathname === "/forgot-password";
 
   const handleProfile = () => {
     if (onProfile) {
@@ -18,16 +18,16 @@ const Navbar = ({ onProfile }) => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
   };
 
   const todoapp = () => {
     const token = localStorage.getItem("token");
     if(!token){
-      navigate("/login");
+      navigate("/");
       window.alert("Please login to acces in tot he app");
     }else{
-      navigate("/");
+      navigate("/dashboard");
     }
   }
 

@@ -21,7 +21,7 @@ function ResetPassword() {
     try {
       await resetPassword({ token, newPassword });
       setMessage("Password reset successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/"), 2000);
     } catch (err) {
       setMessage(
         err?.response?.data || "Failed to reset password. Please try again."

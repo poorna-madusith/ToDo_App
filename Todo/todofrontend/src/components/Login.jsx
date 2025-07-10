@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authServices";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const isLoginOrRegister = location.pathname === "/" || location.pathname === "/register";
+    if (isLoginOrRegister) {
+      localStorage.clear();
+    }
+  }, [location.pathname]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,7 +57,7 @@ function Login() {
         );
       }
       setMessage("Login successful");
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
         setErrors({ ...newErrors, password: err.response.data.message });

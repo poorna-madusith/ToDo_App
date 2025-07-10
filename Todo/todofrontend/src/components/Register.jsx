@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { register } from "../services/authServices";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 function Register() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -10,6 +11,13 @@ function Register() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+      const isLoginOrRegister = location.pathname === "/" || location.pathname === "/register";
+      if (isLoginOrRegister) {
+        localStorage.clear();
+      }
+    }, [location.pathname]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,7 +80,7 @@ function Register() {
             {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
           </div>
           <button type="submit" className="w-full py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Register</button>
-          <a href="/login" className="block text-sm text-center text-indigo-600 hover:underline">Already have an account? Login</a>
+          <a href="/" className="block text-sm text-center text-indigo-600 hover:underline">Already have an account? Login</a>
         </form>
       </div>
     </div>
