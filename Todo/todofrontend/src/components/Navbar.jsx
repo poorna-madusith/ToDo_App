@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Navbar = ({ onProfile }) => {
+const Navbar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -9,11 +9,9 @@ const Navbar = ({ onProfile }) => {
   const isloginorregister  = location.pathname === "/" || location.pathname === "/register" || location.pathname === "/reset-password" || location.pathname === "/forgot-password";
 
   const handleProfile = () => {
-    if (onProfile) {
-      onProfile();
-    } else {
+    
       navigate("/profile");
-    }
+
   };
 
   const handleLogout = () => {

@@ -20,12 +20,6 @@ const Profile = () => {
     if (userData) {
       const parsed = JSON.parse(userData);
       setUser(parsed);
-      setForm((f) => ({
-        ...f,
-        username: parsed.username,
-        email: parsed.email,
-        currentEmail: parsed.email,
-      }));
     }
   }, []);
 
